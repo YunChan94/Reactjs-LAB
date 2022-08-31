@@ -1,22 +1,23 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
+
 import Modal from "../UI/Modal";
+import CartItem from "./CartItem";
 import classes from "./Cart.module.css";
 import CartContext from "../../store/cart-context";
-import CartItem from "./CartItem";
+import Checkout from "./Checkout";
+
 const Cart = (props) => {
-  // Access context
   const cartCtx = useContext(CartContext);
-  // Làm tròn số vd: 15.5 -> 15.50
+
+  const [ischeckout, setIsCheckout] = useState(false);
+
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
-  // check trong cart có item không?
   const hasItems = cartCtx.items.length > 0;
 
-  // Xoá item trong cart
   const cartItemRemoveHandler = (id) => {
     cartCtx.removeItem(id);
   };
 
-  // Thêm item trong cart
   const cartItemAddHandler = (item) => {
     cartCtx.addItem(item);
   };
@@ -36,6 +37,23 @@ const Cart = (props) => {
     </ul>
   );
 
+  const orderHandler = () => {
+    setIsCheckout(true);
+  };
+
+  const modalAction = (
+    <div className={classes.actions}>
+      <button className={classes["button--alt"]} onClick={props.onClose}>
+        Close
+      </button>
+      {hasItems && (
+        <button className={classes.button} onClick={orderHandler}>
+          Order
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <Modal onClose={props.onClose}>
       {cartItems}
@@ -43,13 +61,10 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
-        <button className={classes["button--alt"]} onClick={props.onClose}>
-          Close
-        </button>
-        {hasItems && <button className={classes.button}>Order</button>}
-      </div>
+      {ischeckout && <Checkout onCancel={props.onClose} />}
+      {!ischeckout && modalAction}
     </Modal>
   );
 };
+
 export default Cart;

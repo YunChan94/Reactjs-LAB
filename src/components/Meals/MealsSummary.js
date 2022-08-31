@@ -1,4 +1,5 @@
-import classes from "./MealsSummary.module.css";
+import classes from './MealsSummary.module.css';
+
 const MealsSummary = () => {
   return (
     <section className={classes.summary}>
@@ -14,4 +15,5 @@ const MealsSummary = () => {
     </section>
   );
 };
+
 export default MealsSummary;
