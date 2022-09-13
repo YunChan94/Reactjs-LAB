@@ -1,0 +1,10 @@
+const action = {
+  type: 'LOGIN'
+}
+// Define an action creator here:
+
+const actionCreator = (action)=>{
+  if(action.type==='LOGIN'){
+    return {};
+  }
+}
