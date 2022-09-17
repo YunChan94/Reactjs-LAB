@@ -1,18 +1,24 @@
-import { Fragment } from "react";
-import { useSelector } from "react-redux";
-import Counter from "./components/Counter";
-import Header from "./components/Header";
-import Auth from "./components/Auth";
-import UserProfile from "./components/UserProfile";
+import React from "react";
+import { Route, Switch, Redirect } from "react-router-dom"; // 🔴 Route not Router
+import AllQuotes from "./pages/AllQuotes";
+import NewQuote from "./pages/NewQuote";
+import QuoteDetail from "./pages/QuoteDetail";
 function App() {
-  const isAuth = useSelector((state) => state.auth.isAuthenticated);
   return (
-    <Fragment>
-      <Header />
-      {!isAuth && <Auth />}
-      {isAuth && <UserProfile />}
-      <Counter />
-    </Fragment>
+    <Switch>
+      <Route path="/" exact>
+        <Redirect to="/quotes" />
+      </Route>
+      <Route path="/quotes" exact>
+        <AllQuotes />
+      </Route>
+      <Route path="/quotes/:quoteId">
+        <QuoteDetail />
+      </Route>
+      <Route path="/new-quote">
+        <NewQuote />
+      </Route>
+    </Switch>
   );
 }
 
