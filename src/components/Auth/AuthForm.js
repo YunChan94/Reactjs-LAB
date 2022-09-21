@@ -1,49 +1,77 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
 
 import classes from "./AuthForm.module.css";
-
+import AuthContext from "../../store/auth-context";
 const AuthForm = () => {
+  const history = useHistory();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
+  const authCtx = useContext(AuthContext);
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
 
   const submitHandler = (event) => {
-    event.prevenDefault();
-    // const enteredEmail = emailInputRef.current.value;
-    // const enteredPassword = passwordInputRef.current.value;
+    event.preventDefault();
+    const enteredEmail = emailInputRef.current.value;
+    const enteredPassword = passwordInputRef.current.value;
 
-    console.log("submit");
-    // if (isLogin) {
-    // } else {
-    //   fetch(
-    //     "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAaouJpu9k6sLfBmEDXVt_Iz7U4KpAQPyg",
-    //     {
-    //       method: "POST",
-    //       body: JSON.stringify({
-    //         email: enteredEmail,
-    //         password: enteredPassword,
-    //         returnSecureToken: true,
-    //       }),
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   ).then((res) => {
-    //     if (res.ok) {
-    //       //...
-    //     } else {
-    //       return res.json().then((data) => {
-    //         //show an error modal
-    //         console.log(data);
-    //       });
-    //     }
-    //   });
-    // }
+    setIsLoading(true);
+
+    let url;
+
+    if (isLogin) {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAaouJpu9k6sLfBmEDXVt_Iz7U4KpAQPyg";
+    } else {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAaouJpu9k6sLfBmEDXVt_Iz7U4KpAQPyg";
+    }
+
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        setIsLoading(false);
+
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.json().then((data) => {
+            //show an error modal
+            let errorMessage = "Authentication failed!";
+            // if (data && data.error && data.error.message) {
+            //   errorMessage = data.error.message;
+            // }
+            throw new Error(errorMessage);
+          });
+        }
+      })
+      .then((data) => {
+        //lấy giá trị expiresIn trả về từ data (second=>milisecond)
+        const expirationTime = new Date(
+          new Date().getTime() + +data.expiresIn * 1000
+        );
+        authCtx.login(data.idToken, expirationTime.toISOString());
+        // chuyển sang trang khác
+        history.replace("/");
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   };
 
   return (
@@ -64,7 +92,10 @@ const AuthForm = () => {
           />
         </div>
         <div className={classes.actions}>
-          <button>{isLogin ? "Login" : "Create Account"}</button>
+          {!isLoading && (
+            <button>{isLogin ? "Login" : "Create Account"}</button>
+          )}
+          {isLoading && <p>Sending request...</p>}
           <button
             type="button"
             className={classes.toggle}
