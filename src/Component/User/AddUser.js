@@ -7,6 +7,7 @@ import ErrorModal from "../UI/ErrorModal";
 const AddUser = (props) => {
   const [enteredUsername, setEnteredUsername] = useState("");
   const [enteredAge, setEnteredAge] = useState("");
+  const [enteredAdress, setEnteredAddress] = useState("");
   const [error, setError] = useState();
   const addUserHandler = (e) => {
     e.preventDefault();
@@ -25,15 +26,20 @@ const AddUser = (props) => {
       });
       return;
     }
-    props.onAddUser(enteredUsername, enteredAge);
+    props.onAddUser(enteredUsername, enteredAge, enteredAdress);
     setEnteredUsername("");
     setEnteredAge("");
+    setEnteredAddress("");
   };
   const usernameChangeHandler = (e) => {
     setEnteredUsername(e.target.value);
   };
   const ageChangeHandler = (e) => {
     setEnteredAge(e.target.value);
+  };
+
+  const addressChangeHandler = (e) => {
+    setEnteredAddress(e.target.value);
   };
   const errorHandler = () => {
     setError(null);
@@ -62,6 +68,13 @@ const AddUser = (props) => {
             type="number"
             value={enteredAge}
             onChange={ageChangeHandler}
+          />
+          <label htmlFor="address">Address</label>
+          <input
+            id="address"
+            type="text"
+            value={enteredAdress}
+            onChange={addressChangeHandler}
           />
           <Button type="submit">Add user</Button>
         </form>
